@@ -44,11 +44,13 @@ Column_Vector = ones(Mesh_Row_Length * Mesh_Col_Length, 1) * Column_Index_Multip
 
 Mesh_Dimensions = size(Mesh);
 
-fprintf('Mesh Row Length: %d Mesh Col Length: %d \n', Mesh_Col_Length, Mesh_Col_Length);
-fprintf('Mesh matrix dimensions: %d %d' , size(Mesh));
-
-Metal_Conductor_Row = floor(Mesh_Row_Length / 2) -1;
+Metal_Conductor_Row = floor(Mesh_Row_Length / 2);
 Metal_Conductor_Width = (ceil(Mesh_Col_Length/2) - 2: ceil(Mesh_Col_Length/2) + 2);
+
+fprintf('Mesh Row Length: %d Mesh Col Length: %d \n', Mesh_Row_Length, Mesh_Col_Length);
+fprintf('Mesh matrix dimensions: %d %d \n' , size(Mesh));
+fprintf('Conductor Row: %d \n', Metal_Conductor_Row);
+fprintf('Conductor Width: %d %d %d %d %d \n', Metal_Conductor_Width);
 
 %% Five Point Arm Star Algorithm
 
