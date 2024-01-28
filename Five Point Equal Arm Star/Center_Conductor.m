@@ -92,7 +92,7 @@ for Row = 1:1:Mesh_Row_Length
         % Bottom Check
         if Row + 1 <= Mesh_Row_Length
 
-            if ismember(Row+1, Metal_Conductor_Row) & ismember(Col+1, Metal_Conductor_Width)
+            if ismember(Row+1, Metal_Conductor_Row) & ismember(Col, Metal_Conductor_Width)
                 Electric_Potential_Sum = Electric_Potential_Sum - Conductor_Voltage;
             else
                 Mesh(PHI_Matrix_Index + Mesh_Col_Length, PHI_Matrix_Index) = 1;
@@ -106,7 +106,7 @@ for Row = 1:1:Mesh_Row_Length
             Electric_Potential_Sum = Electric_Potential_Sum - Top_Voltage;
         else
 
-            if ismember(Row+1, Metal_Conductor_Row) & ismember(Col+1, Metal_Conductor_Width)
+            if ismember(Row-1, Metal_Conductor_Row) & ismember(Col, Metal_Conductor_Width)
                 Electric_Potential_Sum = Electric_Potential_Sum - Conductor_Voltage;
             else
                 Mesh(PHI_Matrix_Index - Mesh_Col_Length, PHI_Matrix_Index) = 1;
@@ -129,4 +129,6 @@ end
 
 Output_Phi = inv(Mesh) * Column_Vector; %#ok<MINV>
 Output_Phi = (reshape(Output_Phi,Mesh_Col_Length,Mesh_Row_Length));
+disp(Output_Phi);
+
 imagesc(transpose(Output_Phi));
