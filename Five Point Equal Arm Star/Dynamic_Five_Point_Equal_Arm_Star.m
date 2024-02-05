@@ -116,11 +116,6 @@ for Row = 1:1:Mesh_Row_Length
     
 end
 
-%% Matrix Multiplication to Solve for Phi
-
-% Solve for the potential at each phi within the mesh.
-
-Output_Phi = inv(Mesh) * Column_Vector; %#ok<MINV>
 
 %% Matrix Multiplication to Solve for Phi
 
