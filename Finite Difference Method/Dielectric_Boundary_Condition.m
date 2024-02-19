@@ -9,12 +9,14 @@ Structure_Width = 7;
 Structure_Height = 2;
 Mesh_H = 0.1;
 
+% Conductor Values
+Conductor_Width = 1;
+Conductor_Height = 1;
+Conductor_Voltage = 10;
+
 % Set permittivity values
 Epsilon_Zero = 8.85*10^(-12);
 Epsilon_One = 9.6 * Epsilon_Zero;
-
-% Set center conductor voltage
-Conductor_Voltage = 10;
 
 % Create mesh dimensions
 Mesh_Row_Length = Structure_Height / Mesh_H - 1;
@@ -26,23 +28,31 @@ Mesh = eye(Mesh_Row_Length * Mesh_Col_Length) * -4;
 %% Specify Dielectric Location & Boundary Condition
 
 % Calculate row that the boundary and conductor sit on within the mesh
-Dielectric_Boundary_Row = ceil(Mesh_Row_Length / 2);
+Dielectric_Boundary_Row = (Structure_Height / Mesh_H) - (Conductor_Height/Mesh_H);
 Conductor_Row = Dielectric_Boundary_Row;
 
 % Find the left and right PHI on the boundary that the conductor takes up.
 % Width of the conductor was set to 7 column spaces.
-Conductor_Width_Left_Node = floor(Mesh_Col_Length/2) - 3;
-Conductor_Width_Right_Node = ceil(Mesh_Col_Length/2) + 3;
+
+Conductor_Width_Left_Node = ceil(Mesh_Col_Length/2) - (Conductor_Width/Mesh_H/2);
+Conductor_Width_Right_Node = Conductor_Width_Left_Node + (Conductor_Width/Mesh_H) - 2;
 
 %% Develop the contour around the center conductor
 
 % Left, Right, Top, Bottom wall of the contour calculated based on taking
 % half of the distance from the center of the conductor to the wall of the
 % mesh. 
-Contour_Right_Wall = floor(Mesh_Col_Length/2) + ceil(Mesh_Col_Length/4);
-Contour_Left_Wall = floor(Mesh_Col_Length/2) - ceil(Mesh_Col_Length/4);
-Contour_Top_Wall = Dielectric_Boundary_Row - ceil(Mesh_Row_Length/4);
-Contour_Bottom_Wall = Dielectric_Boundary_Row + ceil(Mesh_Row_Length/4);
+
+
+% DEFAULT CONTOUR ADJUSTMENT = 4, YOU CAN ONLY ADD TO THE ADJUSTMENT. DO
+% NOT GO UNDER 2.5 OR IT WILL BREAK. WHEN YOU ADD TO THE
+% ADJUSTMENT, THE IMPEDANCE SHOWS AS THE SAME BUT ITS ACTUALLY VERY
+% SLIGHTLY DIFFERENT.
+Contour_Adjustment = 4;
+Contour_Right_Wall = floor(Mesh_Col_Length/2) + ceil(Mesh_Col_Length/Contour_Adjustment);
+Contour_Left_Wall = floor(Mesh_Col_Length/2) - ceil(Mesh_Col_Length/Contour_Adjustment);
+Contour_Top_Wall = Dielectric_Boundary_Row - ceil(Mesh_Row_Length/Contour_Adjustment);
+Contour_Bottom_Wall = Dielectric_Boundary_Row + ceil(Mesh_Row_Length/Contour_Adjustment);
 
 %% Create column vector to store potentials
 
@@ -75,8 +85,27 @@ Mesh_Without_Epsilon = Arm_Star(Mesh, Mesh_Row_Length, Mesh_Col_Length, Dielectr
 Formatted_Output_Phi_With_Epsilon = Solve_For_Phi(Mesh_With_Epsilon, Column_Vector, Mesh_Row_Length, Mesh_Col_Length, ...
     Contour_Top_Wall, Contour_Bottom_Wall, Contour_Left_Wall, Contour_Right_Wall);
 
+% Plot the distribution using the color format
+figure(1)
+imagesc(Formatted_Output_Phi_With_Epsilon);
+colorbar;
+title('Phi Distribution With Dielectric')
+
+% Add the contour to the color plot
+rectangle('Position',[Contour_Left_Wall, Contour_Top_Wall, ...
+    Contour_Right_Wall - Contour_Left_Wall, Contour_Bottom_Wall - Contour_Top_Wall],'EdgeColor','r')
+
 Formatted_Output_Phi_Without_Epsilon = Solve_For_Phi(Mesh_Without_Epsilon, Column_Vector, Mesh_Row_Length, Mesh_Col_Length, ...
     Contour_Top_Wall, Contour_Bottom_Wall, Contour_Left_Wall, Contour_Right_Wall);
+
+figure(2)
+imagesc(Formatted_Output_Phi_Without_Epsilon);
+colorbar;
+title('Phi Distribution Without Dielectric')
+
+% Add the contour to the color plot
+rectangle('Position',[Contour_Left_Wall, Contour_Top_Wall, ...
+    Contour_Right_Wall - Contour_Left_Wall, Contour_Bottom_Wall - Contour_Top_Wall],'EdgeColor','r')
 
 %% Calculate capacitance from contour
 
@@ -197,14 +226,6 @@ function Formatted_Output_Phi = Solve_For_Phi(Mesh, Column_Vector, Mesh_Row_Leng
         end
     end
     
-    % Plot the distribution using the color format
-    imagesc(Formatted_Output_Phi);
-    colorbar;
-
-    % Add the contour to the color plot
-    rectangle('Position',[Contour_Left_Wall, Contour_Top_Wall, ...
-        Contour_Right_Wall - Contour_Left_Wall, Contour_Bottom_Wall - Contour_Top_Wall],'EdgeColor','r')
-
 end
 
 %% Contour Potential Summation
